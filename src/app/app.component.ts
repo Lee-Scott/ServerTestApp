@@ -44,36 +44,13 @@ export class AppComponent implements OnInit{
     );
   }
 
-  
-  /*
-  pingServer(ipAddress: string): void {
-    this.filterSubject.next(ipAddress); // pass ipAddress to filter subject, shows spinner
-    this.appState$ = this.serverService.ping$(ipAddress)  
-    .pipe(
-      map(response => {
-        this.dataSubject.value.data.servers[
-          this.dataSubject.value.data.servers.findIndex(server => 
-            server.id === response.data.server.id)
-        ] = response.data.server;
-         this.filterSubject.next('');
-        return { dataState: DataState.LOADED_STATE, appData: response}
-      }),
-      startWith({dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }), // data is already loaded cant pass the response from above so we save it in the ngOnInit and pass it here
-      catchError((error: string) => {
-        this.filterSubject.next('');
-        return of ({dataState: DataState.ERROR_STATE, error }) // if we catch an error
-      })
-    );
-  }
-  
-
   pingServer(ipAddress: string): void {
     this.filterSubject.next(ipAddress);
     this.appState$ = this.serverService.ping$(ipAddress)
       .pipe(
         map(response => {
-          const index = this.dataSubject.value.data.servers.findIndex(server =>  server.id === response.data.server.id);
-          this.dataSubject.value.data.servers[index] = response.data.server;
+          const index = this.dataSubject.value.data.servers.findIndex(server =>  server.id === response['data.server.id']);
+          this.dataSubject.value.data.servers[index] = response['data.server'];
           this.filterSubject.next('');
           return { dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }
         }),
@@ -84,9 +61,24 @@ export class AppComponent implements OnInit{
         })
       );
   }
-  */
+
+  // Not getting any new data from the backend because we already have it in response
+
+  filterServers(status: Status): void {
+    
+    this.appState$ = this.serverService.filter$(status, this.dataSubject.value)
+      .pipe(
+        map(response => {
+          return { dataState: DataState.LOADED_STATE, appData: response }
+        }),
+        startWith({ dataState: DataState.LOADED_STATE, appData: this.dataSubject.value }),
+        catchError((error: string) => {
+          
+          return of({ dataState: DataState.ERROR_STATE, error });
+        })
+      );
+  }
   
- 
-  
+
 
 }
